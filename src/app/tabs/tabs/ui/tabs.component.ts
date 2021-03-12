@@ -3,33 +3,38 @@ import {
   ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   ContentChildren,
-  QueryList, TemplateRef,
+  QueryList,
 } from '@angular/core';
 import {TabComponent} from './tab.component';
 import {Observable} from 'rxjs';
-import {TabsService} from '../service/tabs.service';
+import {TabsService, ViewModel} from '../service/tabs.service';
 
 
 @Component({
   selector: 'app-tabs',
   template: `
-    <div class="tabs__titles">
-      <div class="tabs__title"
-           *ngFor="let titleRef of titles$ | async; index as i"
-           (click)="click(i)"
-      >
-        <ng-container *ngTemplateOutlet="titleRef"></ng-container>
+    <ng-container *ngIf="(model$ | async) as model">
+      <div class="tabs__titles">
+        <div class="tabs__title"
+             [ngClass]="{'tabs__title--active': i === model.index}"
+             *ngFor="let tab of model.tabs; index as i"
+             (click)="click(i)"
+        >
+          <ng-container *ngTemplateOutlet="tab.title"></ng-container>
+        </div>
       </div>
-    </div>
 
-    <ng-container *ngTemplateOutlet="content$ | async"></ng-container>
+      <div class="tabs__content">
+        <ng-container *ngTemplateOutlet="model.content"></ng-container>
+      </div>
+    </ng-container>
+
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TabsComponent implements AfterViewInit {
   @ContentChildren(TabComponent, {emitDistinctChangesOnly: true}) tabList: QueryList<TabComponent>;
-  titles$: Observable<TemplateRef<any>[]>;
-  content$: Observable<TemplateRef<any>>;
+  model$: Observable<ViewModel> | undefined;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -38,8 +43,7 @@ export class TabsComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.titles$ = this.srv.getTitles(this.tabList);
-    this.content$ = this.srv.getContent(this.tabList);
+    this.model$ = this.srv.model(this.tabList);
 
     this.cdr.detectChanges();
   }
