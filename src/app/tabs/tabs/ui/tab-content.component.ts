@@ -1,22 +1,13 @@
-import {ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ContentChild, TemplateRef} from '@angular/core';
+
 
 @Component({
   selector: 'app-tab-content',
   template: `
-    <ng-template>
-      <ng-content></ng-content>
-    </ng-template>
+    <ng-content></ng-content>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TabContentComponent implements OnInit {
-
-  @ViewChild(TemplateRef, {static: true}) content: TemplateRef<any>;
-
-  constructor() {
-  }
-
-  ngOnInit(): void {
-  }
-
+export class TabContentComponent {
+  @ContentChild(TemplateRef, {static: false}) content: TemplateRef<any>;
 }

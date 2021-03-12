@@ -1,22 +1,19 @@
-import {AfterViewInit, ChangeDetectionStrategy, Component, ContentChild, ElementRef, TemplateRef} from '@angular/core';
-import {TabTitleComponent} from './tab-title.component';
-import {TabContentComponent} from './tab-content.component';
+import {ChangeDetectionStrategy, Component, TemplateRef, ViewChild} from '@angular/core';
+
 
 @Component({
   selector: 'app-tab',
   template: `
-    <ng-content select="app-tab-title"></ng-content>
-    <ng-content select="app-tab-content"></ng-content>
+    <ng-template #titleRef>
+      <ng-content select="app-tab-title"></ng-content>
+    </ng-template>
+    <ng-template #contentRef>
+      <ng-content select="app-tab-content"></ng-content>
+    </ng-template>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TabComponent implements AfterViewInit {
-  @ContentChild(TabTitleComponent, {static: false}) title: TabTitleComponent;
-  @ContentChild(TabContentComponent, {static: false}) content: TabContentComponent;
-
-  ngAfterViewInit(): void {
-    console.log('TabComponent', this.title);
-  }
-
-
+export class TabComponent {
+  @ViewChild('titleRef', {static: true}) title: TemplateRef<any>;
+  @ViewChild('contentRef', {static: true}) content: TemplateRef<any>;
 }

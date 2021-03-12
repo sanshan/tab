@@ -6,6 +6,8 @@ import {
   QueryList, TemplateRef,
 } from '@angular/core';
 import {TabComponent} from './tab.component';
+import {Observable} from 'rxjs';
+import {TabsService} from '../service/tabs.service';
 
 
 @Component({
@@ -13,40 +15,37 @@ import {TabComponent} from './tab.component';
   template: `
     <div class="tabs__titles">
       <div class="tabs__title"
-           *ngFor="let tab of tabs; index as i"
+           *ngFor="let titleRef of titles$ | async; index as i"
            (click)="click(i)"
       >
-        <ng-container *ngTemplateOutlet="tab"></ng-container>
+        <ng-container *ngTemplateOutlet="titleRef"></ng-container>
       </div>
-
-      <ng-container *ngTemplateOutlet="content"></ng-container>
     </div>
+
+    <ng-container *ngTemplateOutlet="content$ | async"></ng-container>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TabsComponent implements AfterViewInit {
   @ContentChildren(TabComponent, {emitDistinctChangesOnly: true}) tabList: QueryList<TabComponent>;
-  tabs: TemplateRef<any>[] = [];
-  content: TemplateRef<any>;
+  titles$: Observable<TemplateRef<any>[]>;
+  content$: Observable<TemplateRef<any>>;
 
-  constructor(private cdr: ChangeDetectorRef) {
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private srv: TabsService
+  ) {
   }
 
   ngAfterViewInit(): void {
-    this.initTabs(this.tabList);
-    this.content = this.tabList.get(0)?.content;
-    this.tabList.changes.subscribe(this.initTabs);
-  }
-
-  initTabs = (list: QueryList<TabComponent>): void => {
-    this.tabs = list.map((tab) => tab.title);
+    this.titles$ = this.srv.getTitles(this.tabList);
+    this.content$ = this.srv.getContent(this.tabList);
 
     this.cdr.detectChanges();
-  };
-
-  click(i: number): void {
-    console.log('click', i);
-    this.content = this.tabList.get(i)?.content;
-    this.cdr.detectChanges();
   }
+
+  click(index: number): void {
+    this.srv.setCurrentIndex(index);
+  }
+
 }
