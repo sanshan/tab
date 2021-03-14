@@ -1,55 +1,62 @@
 import {
-  AfterViewInit,
-  ChangeDetectionStrategy, ChangeDetectorRef,
+  AfterContentInit,
+  ChangeDetectionStrategy,
   Component,
   ContentChildren,
   QueryList,
 } from '@angular/core';
 import {TabComponent} from './tab.component';
 import {Observable} from 'rxjs';
-import {TabsService, View} from '../service/tabs.service';
+import {TabsService} from '../service/tabs.service';
+import {Tab} from '../model/tabs';
+import {tap} from 'rxjs/operators';
 
 
 @Component({
   selector: 'app-tabs',
   template: `
-    <ng-container *ngIf="(model$ | async) as view">
+    <ng-container *ngIf="(tabs$ | async) as tabs">
+
       <div class="tabs__titles">
         <div class="tabs__title"
-             [ngClass]="{'tabs__title--active': i === view.index}"
-             *ngFor="let tab of view.tabs; index as i"
+             *ngFor="let tab of tabs; index as i"
+             [ngClass]="{'tabs__title--active': i === contentIndex}"
              (click)="click(i)"
         >
           <ng-container *ngTemplateOutlet="tab.title"></ng-container>
         </div>
       </div>
 
-      <div class="tabs__content">
-        <ng-container *ngTemplateOutlet="view.content"></ng-container>
+      <div *ngIf="tabs[contentIndex] as current" class="tabs__content">
+        <ng-container *ngTemplateOutlet="current.template; context: {tab: current.value}"></ng-container>
       </div>
-    </ng-container>
 
+    </ng-container>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TabsComponent implements AfterViewInit {
+export class TabsComponent implements AfterContentInit {
   @ContentChildren(TabComponent, {emitDistinctChangesOnly: true}) tabList: QueryList<TabComponent>;
-  model$: Observable<View> | undefined;
+  tabs$: Observable<Tab[]> | undefined;
+  contentIndex = 0;
 
-  constructor(
-    private cdr: ChangeDetectorRef,
-    private srv: TabsService
-  ) {
+  constructor(private srv: TabsService) {
   }
 
-  ngAfterViewInit(): void {
-    this.model$ = this.srv.model(this.tabList);
-
-    this.cdr.detectChanges();
+  ngAfterContentInit(): void {
+    this.tabs$ = this.srv.tabsFromQueryList(this.tabList).pipe(
+      tap(this.resetSelected)
+    );
   }
 
   click(index: number): void {
-    this.srv.setCurrentIndex(index);
+    this.contentIndex = index;
+  }
+
+  private resetSelected = (tabs: Tab[]): void => {
+    if (tabs.length <= this.contentIndex) {
+      this.contentIndex = 0;
+    }
   }
 
 }

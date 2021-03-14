@@ -9,17 +9,17 @@
 
 <app-tabs>
 
-  <app-tab *ngFor="let tab of tabs" >
+  <app-tab *ngFor="let tab of tabs" [template]="contentTemplate" [value]="tab">
 
     <app-tab-title>
       Tab <b>{{ tab }}</b> title
     </app-tab-title>
 
-    <app-tab-content>
-      Tab <b>{{ tab }}</b> content
-      <app-test [tab]="tab"></app-test>
-    </app-tab-content>
-
   </app-tab>
+
+  <ng-template #contentTemplate let-tab="tab">
+    Tab <b>{{ tab }}</b> content
+    <app-test [tab]="tab"></app-test>
+  </ng-template>
 
 </app-tabs>
