@@ -13,11 +13,11 @@ import {TabsService, View} from '../service/tabs.service';
 @Component({
   selector: 'app-tabs',
   template: `
-    <ng-container *ngIf="(model$ | async) as model">
+    <ng-container *ngIf="(model$ | async) as view">
       <div class="tabs__titles">
         <div class="tabs__title"
-             [ngClass]="{'tabs__title--active': i === model.index}"
-             *ngFor="let tab of model.tabs; index as i"
+             [ngClass]="{'tabs__title--active': i === view.index}"
+             *ngFor="let tab of view.tabs; index as i"
              (click)="click(i)"
         >
           <ng-container *ngTemplateOutlet="tab.title"></ng-container>
@@ -25,7 +25,7 @@ import {TabsService, View} from '../service/tabs.service';
       </div>
 
       <div class="tabs__content">
-        <ng-container *ngTemplateOutlet="model.content"></ng-container>
+        <ng-container *ngTemplateOutlet="view.content"></ng-container>
       </div>
     </ng-container>
 
