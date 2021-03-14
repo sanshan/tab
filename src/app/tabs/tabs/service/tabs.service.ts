@@ -8,7 +8,7 @@ export interface Tab {
   content: TemplateRef<any>;
 }
 
-export interface ViewModel {
+export interface View {
   tabs: Tab[];
   content: TemplateRef<any>;
   index: number;
@@ -23,7 +23,7 @@ export class TabsService {
     this._currentIndexSubject.next(index);
   }
 
-  model(tabList: QueryList<TabComponent>): Observable<ViewModel> {
+  model(tabList: QueryList<TabComponent>): Observable<View> {
     return combineLatest([
       this.currentIndex$,
       tabList.changes.pipe(startWith(tabList))

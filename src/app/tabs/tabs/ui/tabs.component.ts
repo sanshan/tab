@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import {TabComponent} from './tab.component';
 import {Observable} from 'rxjs';
-import {TabsService, ViewModel} from '../service/tabs.service';
+import {TabsService, View} from '../service/tabs.service';
 
 
 @Component({
@@ -34,7 +34,7 @@ import {TabsService, ViewModel} from '../service/tabs.service';
 })
 export class TabsComponent implements AfterViewInit {
   @ContentChildren(TabComponent, {emitDistinctChangesOnly: true}) tabList: QueryList<TabComponent>;
-  model$: Observable<ViewModel> | undefined;
+  model$: Observable<View> | undefined;
 
   constructor(
     private cdr: ChangeDetectorRef,
